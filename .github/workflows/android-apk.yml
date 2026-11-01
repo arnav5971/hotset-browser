@@ -22,33 +22,46 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
-      
-      - name: Build Android APK
+      - name: Create Capacitor config
         run: |
-          cat << 'EOF' > capacitor.config.json
+          cat > capacitor.config.json << 'EOF'
           {
             "appId": "dev.hotset.browser",
             "appName": "HOTSET Browser",
             "webDir": "src"
           }
           EOF
+
+      - name: Install Capacitor and add Android platform
+        run: |
           npm install @capacitor/core@6.1.2 @capacitor/cli@6.1.2 @capacitor/android@6.1.2
-                    npx cap add android
+          npx cap add android
           npx cap sync android
-          cat << 'EOF' >> android/app/build.gradle
+
+      - name: Exclude duplicate Kotlin stdlib
+        run: |
+          cat >> android/app/build.gradle << 'EOF'
+
           configurations.all {
               exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
-                  exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
-              }
-              EOF
-              
-          chmod +x android/gradlew
-          cd android && ./gradlew assembleDebug
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+          }
+          EOF
+
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+
+      - name: List built APKs
+        run: find android -name "*.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: HOTSET-Browser-Android-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
