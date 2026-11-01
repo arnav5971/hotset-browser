@@ -1,0 +1,19 @@
+{
+  "name": "hotset-browser-universal",
+  "version": "1.0.0",
+  "description": "HOTSET Browser — Next-Generation Universal Web Browser for Mobile, Desktop, Tablet, Foldable & Web",
+  "main": "platforms/desktop-electron/main.js",
+  "scripts": {
+    "start:web": "npx serve src",
+    "start:desktop": "electron platforms/desktop-electron/main.js",
+    "build:windows": "electron-builder --win nsis --x64",
+    "build:macos": "electron-builder --mac dmg --universal",
+    "build:linux": "electron-builder --linux AppImage deb --x64",
+    "cap:android": "npx cap sync android && cd android && ./gradlew assembleRelease bundleRelease",
+    "cap:ios": "npx cap sync ios",
+    "test": "python3 tests/test_hotset_browser.py"
+  },
+  "keywords": ["browser", "hotset", "universal", "chromium", "wkwebview", "ai-browser", "privacy"],
+  "author": "Arnab Mondal",
+  "license": "MIT"
+}
